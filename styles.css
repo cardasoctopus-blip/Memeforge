@@ -1,0 +1,531 @@
+/**
+ * MemeForge's look.
+ *
+ * The palette is lifted from the place image macros actually grew up: the
+ * lavender-blue chrome of an imageboard, with its hairline post borders and its
+ * one loud red. It is a real artifact of the subject rather than a generic
+ * editor grey, and it lets the canvas -- the only thing here with photographic
+ * colour in it -- be the loudest object on screen by a mile.
+ *
+ * Anton carries the display role because Anton *is* the meme voice. The
+ * wordmark is stroked white-on-black: the app's own name gets the same
+ * treatment as the captions it makes. That is the one place boldness is spent;
+ * everything else is deliberately quiet.
+ */
+
+@import url("https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600&display=swap");
+
+:root {
+  --page: #eef2ff;
+  --panel: #d6daf0;
+  --edge: #b7c5d9;
+  --stage: #9aa4cc;
+  --ink: #0f0f1e;
+  --ink-soft: #4a4a6a;
+  --quote: #34345c;
+  --hot: #dd0000;
+
+  --display: "Anton", Impact, "Haettenschweiler", sans-serif;
+  --body: "Archivo", system-ui, -apple-system, sans-serif;
+
+  --radius: 2px;
+  --line: 1px solid var(--edge);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--page);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 14px;
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 2px solid var(--hot);
+  outline-offset: 2px;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: var(--page);
+  border: var(--line);
+  border-radius: var(--radius);
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: #fff;
+  border-color: var(--quote);
+}
+
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.button--hot {
+  background: var(--hot);
+  border-color: var(--hot);
+  color: #fff;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.button--hot:hover:not(:disabled) {
+  background: #b00000;
+  border-color: #b00000;
+  color: #fff;
+}
+
+.link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--quote);
+  text-decoration: underline;
+}
+
+.input {
+  font: inherit;
+  width: 100%;
+  padding: 6px 8px;
+  background: #fff;
+  border: var(--line);
+  border-radius: var(--radius);
+  resize: vertical;
+}
+
+/* ---------- shell ---------- */
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 10px 16px;
+  background: var(--panel);
+  border-bottom: var(--line);
+  flex-wrap: wrap;
+}
+
+.toolbar__group {
+  display: flex;
+  gap: 6px;
+}
+
+.toolbar__group--tight {
+  margin-left: auto;
+}
+
+/* The signature: the wordmark is an image-macro caption. */
+.wordmark {
+  margin: 0 8px 0 0;
+  font-family: var(--display);
+  font-size: 26px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 2.5px var(--ink);
+  paint-order: stroke fill;
+  user-select: none;
+}
+
+.wordmark__forge {
+  color: var(--hot);
+}
+
+.workspace {
+  display: grid;
+  grid-template-columns: 1fr 300px;
+  flex: 1;
+  min-height: 0;
+}
+
+/* ---------- stage ---------- */
+
+.stage {
+  position: relative;
+  display: grid;
+  place-items: center;
+  background: var(--stage);
+  /* A quiet checker, so a transparent PNG reads as transparent. */
+  background-image:
+    linear-gradient(45deg, rgba(0, 0, 0, 0.06) 25%, transparent 25%),
+    linear-gradient(-45deg, rgba(0, 0, 0, 0.06) 25%, transparent 25%),
+    linear-gradient(45deg, transparent 75%, rgba(0, 0, 0, 0.06) 75%),
+    linear-gradient(-45deg, transparent 75%, rgba(0, 0, 0, 0.06) 75%);
+  background-size: 20px 20px;
+  background-position: 0 0, 0 10px, 10px -10px, -10px 0;
+  overflow: auto;
+  min-height: 0;
+}
+
+.stage[data-dropping] {
+  outline: 3px dashed var(--hot);
+  outline-offset: -8px;
+}
+
+.stage__canvas {
+  background: #fff;
+  box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+  touch-action: none;
+  cursor: grab;
+}
+
+.stage__canvas:active {
+  cursor: grabbing;
+}
+
+.stage__meta {
+  position: absolute;
+  bottom: 10px;
+  right: 12px;
+  margin: 0;
+  font-size: 11px;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.75);
+  padding: 2px 6px;
+  border-radius: var(--radius);
+}
+
+.stage__dropzone {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--display);
+  font-size: 40px;
+  text-transform: uppercase;
+  color: #fff;
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  background: rgba(238, 242, 255, 0.5);
+  pointer-events: none;
+}
+
+/* ---------- empty state ---------- */
+
+.empty {
+  text-align: center;
+  padding: 32px;
+  background: var(--page);
+  border: var(--line);
+  border-radius: var(--radius);
+  max-width: 380px;
+}
+
+.empty__lead {
+  margin: 0 0 12px;
+  font-family: var(--display);
+  font-size: 28px;
+  text-transform: uppercase;
+}
+
+.empty__routes {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 8px;
+  color: var(--ink-soft);
+}
+
+.empty__error {
+  margin: 12px 0 0;
+  color: var(--hot);
+}
+
+kbd {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  font-size: 11px;
+  background: var(--panel);
+  border: var(--line);
+  border-bottom-width: 2px;
+  border-radius: var(--radius);
+  padding: 1px 4px;
+}
+
+/* ---------- sidebar ---------- */
+
+.sidebar {
+  border-left: var(--line);
+  background: var(--page);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.panel {
+  padding: 14px;
+  border-bottom: var(--line);
+}
+
+.panel__title {
+  margin: 0 0 12px;
+  font-family: var(--display);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--quote);
+}
+
+.field {
+  display: block;
+  margin-bottom: 12px;
+}
+
+.field__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+  margin-bottom: 4px;
+}
+
+.field__value {
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.field input[type="color"] {
+  width: 100%;
+  height: 28px;
+  padding: 0;
+  border: var(--line);
+  border-radius: var(--radius);
+  background: none;
+  cursor: pointer;
+}
+
+.field input[type="range"] {
+  width: 100%;
+  accent-color: var(--hot);
+}
+
+.segmented {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.segmented button {
+  border-radius: 0;
+  text-transform: capitalize;
+}
+
+.segmented button + button {
+  border-left: 0;
+}
+
+.segmented button[data-active] {
+  background: var(--quote);
+  border-color: var(--quote);
+  color: #fff;
+}
+
+.checks {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.checks label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.checks input {
+  accent-color: var(--hot);
+}
+
+.hint {
+  margin: 8px 0 0;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+/* ---------- layers ---------- */
+
+.layers {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.layer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--panel);
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+  padding: 2px 4px;
+}
+
+.layer[data-selected] {
+  border-color: var(--hot);
+  background: #fff;
+}
+
+.layer__name {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  background: none;
+  border: 0;
+  padding: 4px 2px;
+  text-align: left;
+}
+
+.layer__name:hover {
+  background: none;
+}
+
+.layer__kind {
+  font-family: var(--display);
+  font-size: 11px;
+  color: var(--quote);
+  width: 14px;
+  flex-shrink: 0;
+}
+
+.layer__label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.layer__actions {
+  display: flex;
+  gap: 1px;
+  opacity: 0.55;
+}
+
+.layer:hover .layer__actions,
+.layer[data-selected] .layer__actions {
+  opacity: 1;
+}
+
+.layer__actions button {
+  padding: 2px 5px;
+  font-size: 11px;
+  line-height: 1;
+  background: none;
+  border-color: transparent;
+}
+
+.layer__delete:hover:not(:disabled) {
+  background: var(--hot);
+  border-color: var(--hot);
+  color: #fff;
+}
+
+/* ---------- shortcuts ---------- */
+
+.shortcuts {
+  padding: 14px;
+  margin-top: auto;
+  color: var(--ink-soft);
+}
+
+.shortcuts h3 {
+  margin: 0 0 8px;
+  font-family: var(--display);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--quote);
+}
+
+.shortcuts dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 3px 10px;
+  margin: 0;
+  font-size: 12px;
+}
+
+.shortcuts dt {
+  font-family: ui-monospace, "SFMono-Regular", Menlo, monospace;
+  color: var(--ink);
+}
+
+.shortcuts dd {
+  margin: 0;
+}
+
+/* ---------- toast ---------- */
+
+.toast {
+  position: fixed;
+  bottom: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 8px 14px;
+  background: var(--hot);
+  color: #fff;
+  border-radius: var(--radius);
+}
+
+/* ---------- responsive ---------- */
+
+@media (max-width: 900px) {
+  .workspace {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(240px, 1fr) auto;
+  }
+
+  .sidebar {
+    border-left: 0;
+    border-top: var(--line);
+    max-height: 45vh;
+  }
+
+  .wordmark {
+    font-size: 20px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
