@@ -8,7 +8,7 @@
   "author": "MEMEFORGE TEAM",
   "repository": {
     "type": "git",
-    "url": "https://github.com/anticam8-pixel/MemeForge.git"
+    "url": "https://github.com/cardasoctopus-blip/Memeforge"
   },
   "keywords": ["meme", "editor", "canvas", "react", "typescript", "image-macro"],
   "scripts": {
